@@ -1,61 +1,27 @@
 package com.infinitydreamers.mqtt;
 
-import java.util.UUID;
-import org.eclipse.paho.client.mqttv3.IMqttClient;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttException;
-
 import com.infinitydreamers.message.Message;
 import com.infinitydreamers.node.InputOutputNode;
 
 public class MqttIn extends InputOutputNode {
-    Message message;
-    static final String DEFAULT_TOPIC = "application/#";
-    static final String DEFAULT_URI = "tcp://ems.nhnacademy.com:1883";
-    IMqttClient client;
-
-    public MqttIn(Message message) {
-        this.message = message;
-    }
 
     @Override
-    public void preprocess() {
-        String publisherId = UUID.randomUUID().toString();
-        String uri = message.getJson().has("uri") ? message.getJson().getString("uri") : DEFAULT_URI;
+    public void process() {
+        if ((getInputWire(0) != null) && getInputWire(0).hasMessage()) {
 
-        try {
-            client = new MqttClient(uri, publisherId);
-            client.connect();
-            String topicFilter = message.getJson().has("inputTopic") ? message.getJson().getString("inputTopic")
-                    : DEFAULT_TOPIC;
-            String sensor = message.getJson().has("sensor") ? message.getJson().getString("sensor") : null;
+            Message message = getInputWire(0).get();
 
-            client.subscribe(topicFilter, (topic, msg) -> {
-                if (topic.contains("device")) {
-                    // message = new Message();
-                    message.setFlag(true);
-                    message.setSensor(sensor);
-                    message.put("payload", msg.toString());
-                    output(message);
-                } else {
-                    Message fail = new Message();
-                    fail.put("fail", "Topic does not contain device");
-                    fail.setFlag(false);
-                    output(fail);
-                }
-            });
+            if (message.isFlag()) {
+                increaseSuccess();
+            } else {
+                increasefail();
+            }
+            String topic = message.getJson().get("topic").toString();
+            if (topic.contains("device")) {
+                output(message);
+            } else {
 
-        } catch (MqttException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void postprocess() {
-        try {
-            client.disconnect();
-        } catch (MqttException e) {
-            e.printStackTrace();
+            }
         }
     }
 }

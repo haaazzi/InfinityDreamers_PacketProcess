@@ -9,8 +9,8 @@ import com.infinitydreamers.wire.Wire;
 public class InputOutputNode extends ActiveNode {
     List<Wire> inputWires;
     List<Wire> outputWires;
-    int successCount = 0;
-    int failCount = 0;
+    static int successCount = 0;
+    static int failCount = 0;
 
     public InputOutputNode(String name) {
         super(name);
@@ -54,5 +54,13 @@ public class InputOutputNode extends ActiveNode {
 
     public Wire getOutputWire(int index) {
         return outputWires.get(index);
+    }
+
+    public static void increaseSuccess() {
+        successCount++;
+    }
+
+    public static void increasefail() {
+        failCount++;
     }
 }
