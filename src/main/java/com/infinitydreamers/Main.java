@@ -12,9 +12,10 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import com.infinitydreamers.message.Message;
-import com.infinitydreamers.mqtt.DeviceInfoNode;
+import com.infinitydreamers.mqtt.MQTTClient;
 import com.infinitydreamers.mqtt.MqttIn;
 import com.infinitydreamers.mqtt.MqttOut;
+import com.infinitydreamers.mqtt.MqttPreprocess;
 import com.infinitydreamers.mqtt.SensorNode;
 import com.infinitydreamers.mqtt.TopicNode;
 import com.infinitydreamers.node.DebugNode;
@@ -68,8 +69,9 @@ public class Main {
 
             }
 
-            MqttIn in = new MqttIn(message);
-            DeviceInfoNode deviceInfo = new DeviceInfoNode();
+            MQTTClient client = new MQTTClient(message);
+            MqttIn in = new MqttIn();
+            MqttPreprocess mqttPreprocess = new MqttPreprocess();
             TopicNode topicNode = new TopicNode();
             SensorNode sensorNode = new SensorNode();
             MqttOut out = new MqttOut();
@@ -79,6 +81,7 @@ public class Main {
             DebugNode debugNode5 = new DebugNode("SensorNode");
             DebugNode debugNode6 = new DebugNode("MqttOut");
 
+            Wire wire1 = new Wire();
             Wire wire2 = new Wire();
             Wire wire3 = new Wire();
             Wire wire4 = new Wire();
@@ -90,39 +93,42 @@ public class Main {
             Wire debugWire5 = new Wire();
             Wire debugWire6 = new Wire();
 
+            client.connectOutputWire(wire1);
+            in.connectInputWire(wire1);
             in.connectOutputWire(wire2);
-            in.connectOutputWire(debugWire2);
-            debugNode1.connectInputWire(debugWire2);
+            // in.connectOutputWire(debugWire2);
+            // debugNode1.connectInputWire(debugWire2);
 
-            deviceInfo.connectInputWire(wire2);
-            deviceInfo.connectOutputWire(wire3);
-            deviceInfo.connectOutputWire(debugWire3);
-            debugNode3.connectInputWire(debugWire3);
+            mqttPreprocess.connectInputWire(wire2);
+            // mqttPreprocess.connectOutputWire(wire3);
+            // mqttPreprocess.connectOutputWire(debugWire3);
+            // debugNode3.connectInputWire(debugWire3);
 
-            topicNode.connectInputWire(wire3);
-            topicNode.connectOutputWire(wire4);
-            topicNode.connectOutputWire(debugWire4);
-            debugNode4.connectInputWire(debugWire4);
+            // topicNode.connectInputWire(wire3);
+            // topicNode.connectOutputWire(wire4);
+            // topicNode.connectOutputWire(debugWire4);
+            // debugNode4.connectInputWire(debugWire4);
 
-            sensorNode.connectInputWire(wire4);
-            sensorNode.connectOutputWire(wire5);
-            sensorNode.connectOutputWire(debugWire5);
-            debugNode5.connectInputWire(debugWire5);
+            // sensorNode.connectInputWire(wire4);
+            // sensorNode.connectOutputWire(wire5);
+            // sensorNode.connectOutputWire(debugWire5);
+            // debugNode5.connectInputWire(debugWire5);
 
-            out.connectInputWire(wire5);
-            out.connectOutputWire(debugWire6);
-            debugNode6.connectInputWire(debugWire6);
+            // out.connectInputWire(wire5);
+            // out.connectOutputWire(debugWire6);
+            // debugNode6.connectInputWire(debugWire6);
 
+            client.start();
             in.start();
-            deviceInfo.start();
-            topicNode.start();
-            sensorNode.start();
-            out.start();
-            debugNode1.start();
-            debugNode3.start();
-            debugNode4.start();
-            debugNode5.start();
-            debugNode6.start();
+            mqttPreprocess.start();
+            // topicNode.start();
+            // sensorNode.start();
+            // out.start();
+            // debugNode1.start();
+            // debugNode3.start();
+            // debugNode4.start();
+            // debugNode5.start();
+            // debugNode6.start();
         } catch (ParseException | IOException | org.json.simple.parser.ParseException e) {
             e.printStackTrace();
         }
