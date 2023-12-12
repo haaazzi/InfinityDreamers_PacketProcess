@@ -2,10 +2,9 @@ package com.infinitydreamers.modbus;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Arrays;
 
-import com.infinitydreamers.message.Message;
 import com.infinitydreamers.node.OutputNode;
 
 public class Injector extends OutputNode {
@@ -18,20 +17,19 @@ public class Injector extends OutputNode {
 
     @Override
     public void process() {
-        try (Socket socket = new Socket("172.18.0.1", 11502)) {
-            Message message = new Message();
+        try (ServerSocket serverSocket = new ServerSocket(1234);
+                Socket socket = serverSocket.accept()) {
             BufferedOutputStream outputStream = new BufferedOutputStream(socket.getOutputStream());
+            byte[] request = ModbusResponse.addMBAP(++transactionId, 1,
+                    ModbusResponse.make6Response(100, ((int) (Math.random() * 3000) + 1000)));
 
-            byte[] request = "data/b/gyeongnam/p/class_a/s/nhnacademy/e/temperature/v/36.5".getBytes();
-            message.put("request", Arrays.toString(request));
-            // outputStream.write(request);
-            // outputStream.flush();
+            outputStream.write(request);
+            outputStream.flush();
 
             Thread.sleep(5000);
         } catch (IOException | InterruptedException e) {
             Thread.currentThread().interrupt();
             e.printStackTrace();
         }
-
     }
 }
