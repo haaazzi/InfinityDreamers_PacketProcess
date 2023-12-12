@@ -28,6 +28,26 @@ public class ModbusResponse {
         return frame;
     }
 
+    public static byte[] make6Response(int address, int value) {
+        byte[] frame = new byte[5];
+
+        ByteBuffer b = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN);
+
+        frame[0] = 0x06;
+
+        b.putInt(address);
+        frame[1] = b.get(2);
+        frame[2] = b.get(3);
+
+        b.clear();
+
+        b.putInt(value);
+        frame[3] = b.get(2);
+        frame[4] = b.get(3);
+
+        return frame;
+    }
+
     public static byte[] make16Response(int[] registers, int address) {
         int quantity = registers.length;
         byte[] frame = new byte[5];
