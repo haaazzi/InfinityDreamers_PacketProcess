@@ -12,6 +12,10 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import com.infinitydreamers.message.Message;
+import com.infinitydreamers.modbus.Injector;
+import com.infinitydreamers.modbus.ModbusClient;
+import com.infinitydreamers.modbus.ModbusMapper;
+import com.infinitydreamers.modbus.ModbusMaster;
 import com.infinitydreamers.mqtt.MQTTClient;
 import com.infinitydreamers.mqtt.MqttIn;
 import com.infinitydreamers.mqtt.MqttOut;
@@ -75,11 +79,12 @@ public class Main {
             TopicNode topicNode = new TopicNode();
             SensorNode sensorNode = new SensorNode();
             MqttOut out = new MqttOut();
-            DebugNode debugNode1 = new DebugNode("MqttIn");
-            DebugNode debugNode3 = new DebugNode("DeviceNode");
-            DebugNode debugNode4 = new DebugNode("TopicNode");
-            DebugNode debugNode5 = new DebugNode("SensorNode");
-            DebugNode debugNode6 = new DebugNode("MqttOut");
+
+            Injector injector = new Injector("Injector");
+            ModbusClient modbusClient = new ModbusClient();
+            ModbusMaster modbusMaster = new ModbusMaster();
+            ModbusMapper modbusMapper = new ModbusMapper();
+            RuleEngine ruleEngine = new RuleEngine();
 
             Wire wire1 = new Wire();
             Wire wire2 = new Wire();
@@ -87,36 +92,32 @@ public class Main {
             Wire wire4 = new Wire();
             Wire wire5 = new Wire();
 
-            Wire debugWire2 = new Wire();
-            Wire debugWire3 = new Wire();
-            Wire debugWire4 = new Wire();
-            Wire debugWire5 = new Wire();
-            Wire debugWire6 = new Wire();
+            Wire modWire1 = new Wire();
+            Wire modWire2 = new Wire();
+            Wire modWire3 = new Wire();
 
             client.connectOutputWire(wire1);
             in.connectInputWire(wire1);
             in.connectOutputWire(wire2);
-            // in.connectOutputWire(debugWire2);
-            // debugNode1.connectInputWire(debugWire2);
-
             mqttPreprocess.connectInputWire(wire2);
-            // mqttPreprocess.connectOutputWire(wire3);
-            // mqttPreprocess.connectOutputWire(debugWire3);
-            // debugNode3.connectInputWire(debugWire3);
+            mqttPreprocess.connectOutputWire(wire3);
+            ruleEngine.connectInputWire(wire3);
+
+            modbusClient.connectOutputWire(modWire1);
+            modbusMaster.connectInputWire(modWire1);
+            modbusMaster.connectOutputWire(modWire2);
+            modbusMapper.connectInputWire(modWire2);
+            modbusMapper.connectOutputWire(modWire3);
+            ruleEngine.connectInputWire(modWire3);
 
             // topicNode.connectInputWire(wire3);
             // topicNode.connectOutputWire(wire4);
-            // topicNode.connectOutputWire(debugWire4);
-            // debugNode4.connectInputWire(debugWire4);
 
             // sensorNode.connectInputWire(wire4);
             // sensorNode.connectOutputWire(wire5);
-            // sensorNode.connectOutputWire(debugWire5);
-            // debugNode5.connectInputWire(debugWire5);
 
             // out.connectInputWire(wire5);
-            // out.connectOutputWire(debugWire6);
-            // debugNode6.connectInputWire(debugWire6);
+            // out.connectOutputWire(debugWie6);
 
             client.start();
             in.start();
@@ -124,11 +125,13 @@ public class Main {
             // topicNode.start();
             // sensorNode.start();
             // out.start();
-            // debugNode1.start();
-            // debugNode3.start();
-            // debugNode4.start();
-            // debugNode5.start();
-            // debugNode6.start();
+
+            injector.start();
+            modbusClient.start();
+            modbusMaster.start();
+            modbusMapper.start();
+            ruleEngine.start();
+
         } catch (ParseException | IOException | org.json.simple.parser.ParseException e) {
             e.printStackTrace();
         }
