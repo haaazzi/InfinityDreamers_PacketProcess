@@ -22,25 +22,17 @@ public class MqttPreprocess extends InputOutputNode {
                 } catch (JSONException e) {
                 }
                 if (json != null && json.has(deviceInfoString) && json.has(objectString)) {
-                    StringBuilder sb = new StringBuilder();
                     JSONObject newJson = new JSONObject();
                     JSONObject deviceInfo = (JSONObject) ((JSONObject) json.get(deviceInfoString)).get("tags");
                     JSONObject object = (JSONObject) json.get("object");
 
                     if (deviceInfo.length() >= 3) {
                         for (String key : object.keySet()) {
-                            sb.delete(0, sb.length());
-                            sb.append(deviceInfo.get("site") + "/");
-                            sb.append(deviceInfo.get("branch") + "/");
-                            sb.append(deviceInfo.get("place"));
-                            newJson.put("place", sb.toString());
-                            newJson.put("type", key);
-                            newJson.put("deviceId", ((JSONObject) json.get(deviceInfoString)).get("devEui"));
+                            newJson.put("key", ((JSONObject) json.get(deviceInfoString)).get("devEui") + "-" + key);
                             newJson.put("value", object.get(key));
 
                             Message newMessage = new Message(newJson);
                             newMessage.setFlag(true);
-                            System.out.println(newMessage.getJson().toString(4));
                             output(newMessage);
                         }
                     }

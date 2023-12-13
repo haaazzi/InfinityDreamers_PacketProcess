@@ -21,12 +21,12 @@ public class Injector extends OutputNode {
                 Socket socket = serverSocket.accept()) {
             BufferedOutputStream outputStream = new BufferedOutputStream(socket.getOutputStream());
             byte[] request = ModbusResponse.addMBAP(++transactionId, 1,
-                    ModbusResponse.make6Response(100, ((int) (Math.random() * 3000) + 1000)));
+                    ModbusResponse.make6Response(201, ((int) (Math.random() * 3000) + 1000)));
 
+            Thread.sleep(5000);
             outputStream.write(request);
             outputStream.flush();
 
-            Thread.sleep(5000);
         } catch (IOException | InterruptedException e) {
             Thread.currentThread().interrupt();
             e.printStackTrace();
