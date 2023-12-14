@@ -3,9 +3,12 @@ package com.infinitydreamers;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.json.JSONObject;
+
 import com.infinitydreamers.message.Message;
 import com.infinitydreamers.node.InputOutputNode;
 
+import lombok.val;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
@@ -28,18 +31,23 @@ public class RuleEngine extends InputOutputNode {
     }
 
     public void updateValue(Message message) {
+        String deviceKey = message.getJson().get("key").toString();
+        String value = message.getJson().get("value").toString();
         try (Jedis jedis = pool.getResource()) {
             Map<String, String> hash = new HashMap<>();
-            hash.put(message.getJson().get("key").toString(), message.getJson().get("value").toString());
+            hash.put(deviceKey, value);
             jedis.hset("value", hash);
+            Map<String, String> resultMap = jedis.hgetAll("place");
+            if (resultMap.containsKey(deviceKey)) {
+                JSONObject placeObject = new JSONObject(resultMap.get(deviceKey));
+                if (placeObject.has("address")) {
+                    String address = placeObject.getString("address");
+                    JSONObject addressObject = new JSONObject(resultMap.get(address));
 
-            System.out.println(jedis.hgetAll("value"));
-            // for (String string : jedis.keys("*")) {
-            // System.out.println(string);
-            // }
-            // System.out.println(jedis.hgetAll("address"));
+                    message.put("place", addressObject.get("place").toString());
+                }
+            }
         }
-
         output(message);
     }
 }

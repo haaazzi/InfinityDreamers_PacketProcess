@@ -78,7 +78,6 @@ public class ModbusResponse {
         int address = ((buffer[8] << 8) | Byte.toUnsignedInt(buffer[9]));
         int quantity = ((buffer[10] << 8) | Byte.toUnsignedInt(buffer[11]));
         int value = ModbusServer.map.containsKey(address) ? ModbusServer.map.get(address) : 0;
-        System.out.println(Integer.toHexString(value));
         byte[] result = new byte[quantity];
 
         switch (functionCode) {
@@ -104,11 +103,9 @@ public class ModbusResponse {
     // Header Wrapper - Read + Write
     public static byte[] addMBAP(int transactionId, int unitId, byte[] pdu) {
         byte[] adu = new byte[7 + pdu.length];
-        // System.out.println((byte) transactionId);
         ByteBuffer b = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN);
 
         b.putInt(transactionId);
-        // System.out.println(b.get(0) + "," + b.get(1) + "," + b.get(2) + "," +
         // b.get(3));
 
         adu[0] = b.get(2);
