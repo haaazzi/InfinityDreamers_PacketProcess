@@ -97,7 +97,6 @@ public class ModbusServer extends InputOutputNode {
                         } else {
                             // Response
                             byte[] result = ModbusResponse.getResponse(buffer);
-                            // System.out.println(Arrays.toString(Arrays.copyOfRange(buffer, 0, 15)));
                             outputStream.write(result);
                             outputStream.flush();
                         }

@@ -8,20 +8,22 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import com.infinitydreamers.message.Message;
 import com.infinitydreamers.modbus.Injector;
 import com.infinitydreamers.modbus.ModbusClient;
-import com.infinitydreamers.modbus.ModbusMapper;
+import com.infinitydreamers.modbus.ModbusRtoMMapper;
+import com.infinitydreamers.modbus.ModbusSlave;
 import com.infinitydreamers.modbus.ModbusMaster;
+import com.infinitydreamers.modbus.ModbusMtoRMapper;
 import com.infinitydreamers.mqtt.MQTTClient;
+import com.infinitydreamers.mqtt.MQTTMessageGenerator;
 import com.infinitydreamers.mqtt.MqttIn;
 import com.infinitydreamers.mqtt.MqttOut;
 import com.infinitydreamers.mqtt.MqttPreprocess;
-import com.infinitydreamers.mqtt.SensorNode;
-import com.infinitydreamers.mqtt.TopicNode;
 import com.infinitydreamers.node.DebugNode;
 import com.infinitydreamers.wire.Wire;
 
@@ -76,15 +78,16 @@ public class Main {
             MQTTClient client = new MQTTClient(message);
             MqttIn in = new MqttIn();
             MqttPreprocess mqttPreprocess = new MqttPreprocess();
-            TopicNode topicNode = new TopicNode();
-            SensorNode sensorNode = new SensorNode();
+            MQTTMessageGenerator mqttMessageGenerator = new MQTTMessageGenerator();
             MqttOut out = new MqttOut();
 
             Injector injector = new Injector("Injector");
             ModbusClient modbusClient = new ModbusClient();
             ModbusMaster modbusMaster = new ModbusMaster();
-            ModbusMapper modbusMapper = new ModbusMapper();
+            ModbusRtoMMapper modbusRtoMMapper = new ModbusRtoMMapper();
             RuleEngine ruleEngine = new RuleEngine();
+            ModbusMtoRMapper modbusMtoRMapper = new ModbusMtoRMapper();
+            ModbusSlave modbusSlave = new ModbusSlave();
 
             Wire wire1 = new Wire();
             Wire wire2 = new Wire();
@@ -95,6 +98,8 @@ public class Main {
             Wire modWire1 = new Wire();
             Wire modWire2 = new Wire();
             Wire modWire3 = new Wire();
+            Wire modWire4 = new Wire();
+            Wire modWire5 = new Wire();
 
             client.connectOutputWire(wire1);
             in.connectInputWire(wire1);
@@ -102,35 +107,35 @@ public class Main {
             mqttPreprocess.connectInputWire(wire2);
             mqttPreprocess.connectOutputWire(wire3);
             ruleEngine.connectInputWire(wire3);
+            ruleEngine.connectOutputWire(wire4);
+            mqttMessageGenerator.connectInputWire(wire4);
+            mqttMessageGenerator.connectOutputWire(wire5);
+            out.connectInputWire(wire5);
 
             modbusClient.connectOutputWire(modWire1);
             modbusMaster.connectInputWire(modWire1);
             modbusMaster.connectOutputWire(modWire2);
-            modbusMapper.connectInputWire(modWire2);
-            modbusMapper.connectOutputWire(modWire3);
+            modbusRtoMMapper.connectInputWire(modWire2);
+            modbusRtoMMapper.connectOutputWire(modWire3);
             ruleEngine.connectInputWire(modWire3);
-
-            // topicNode.connectInputWire(wire3);
-            // topicNode.connectOutputWire(wire4);
-
-            // sensorNode.connectInputWire(wire4);
-            // sensorNode.connectOutputWire(wire5);
-
-            // out.connectInputWire(wire5);
-            // out.connectOutputWire(debugWie6);
+            ruleEngine.connectOutputWire(modWire4);
+            modbusMtoRMapper.connectInputWire(modWire4);
+            modbusMtoRMapper.connectOutputWire(modWire5);
+            modbusSlave.connectInputWire(modWire5);
 
             client.start();
             in.start();
             mqttPreprocess.start();
-            // topicNode.start();
-            // sensorNode.start();
-            // out.start();
+            mqttMessageGenerator.start();
+            out.start();
 
             injector.start();
             modbusClient.start();
             modbusMaster.start();
-            modbusMapper.start();
+            modbusRtoMMapper.start();
             ruleEngine.start();
+            modbusMtoRMapper.start();
+            modbusSlave.start();
 
         } catch (ParseException | IOException | org.json.simple.parser.ParseException e) {
             e.printStackTrace();

@@ -1,16 +1,18 @@
 package com.infinitydreamers.modbus;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.json.JSONObject;
 
+import com.google.gson.Gson;
 import com.infinitydreamers.message.Message;
 import com.infinitydreamers.node.InputOutputNode;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
-public class ModbusMapper extends InputOutputNode {
+public class ModbusRtoMMapper extends InputOutputNode {
     JedisPool pool = new JedisPool("localhost", 6379);
 
     @Override
@@ -27,6 +29,7 @@ public class ModbusMapper extends InputOutputNode {
                 message.put("value", value + "");
                 try (Jedis jedis = pool.getResource()) {
                     Map<String, String> resultMap = jedis.hgetAll("address");
+
                     JSONObject object = new JSONObject(resultMap.get((Byte.parseByte(data[9]) & 0xff) + ""));
                     String deviceId = object.get("deviceId").toString();
                     String type = object.get("type").toString();
@@ -37,4 +40,5 @@ public class ModbusMapper extends InputOutputNode {
             }
         }
     }
+
 }

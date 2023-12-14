@@ -11,10 +11,12 @@ import com.infinitydreamers.node.InputOutputNode;
 
 public class ModbusClient extends InputOutputNode {
     int transactionId = 0;
+    Socket socket;
 
     @Override
     public void process() {
-        try (Socket socket = new Socket("localhost", 1234)) {
+        try {
+            socket = new Socket("localhost", 1234);
             BufferedOutputStream outputStream = new BufferedOutputStream(socket.getOutputStream());
             BufferedInputStream inputStream = new BufferedInputStream(socket.getInputStream());
             Message message = new Message();
@@ -26,8 +28,9 @@ public class ModbusClient extends InputOutputNode {
 
             message.put("payload", Arrays.toString(result));
             message.setFlag(true);
+            Thread.sleep(1000);
             output(message);
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             Thread.currentThread().interrupt();
             e.printStackTrace();
         }
