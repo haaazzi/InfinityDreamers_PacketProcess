@@ -29,7 +29,7 @@ public class MqttPreprocess extends InputOutputNode {
                     if (deviceInfo.length() >= 3) {
                         for (String key : object.keySet()) {
                             newJson.put("key", ((JSONObject) json.get(deviceInfoString)).get("devEui") + "-" + key);
-                            newJson.put("value", object.get(key));
+                            newJson.put("value", object.get(key).toString());
 
                             Message newMessage = new Message(newJson);
                             newMessage.setFlag(true);

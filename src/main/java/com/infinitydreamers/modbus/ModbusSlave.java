@@ -10,7 +10,7 @@ public class ModbusSlave extends InputOutputNode {
             Message message = getInputWire(0).get();
 
             if (message.isFlag()) {
-                System.out.println(message.getJson().toString(4));
+                // System.out.println(message.getJson().toString(4));
                 message.setFlag(true);
                 output(message);
             }

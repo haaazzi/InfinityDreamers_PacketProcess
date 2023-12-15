@@ -16,11 +16,13 @@ public class ModbusClient extends InputOutputNode {
     @Override
     public void process() {
         try {
-            socket = new Socket("localhost", 1234);
+            socket = new Socket("localhost", 23456);
             BufferedOutputStream outputStream = new BufferedOutputStream(socket.getOutputStream());
             BufferedInputStream inputStream = new BufferedInputStream(socket.getInputStream());
             Message message = new Message();
-
+            byte[] a = { 0, 1, 0, 0, 0, 6, 1, 3, 0, 0, 0, 5 };
+            outputStream.write(a);
+            outputStream.flush();
             byte[] buffer = new byte[1024];
 
             int length = inputStream.read(buffer);
@@ -37,4 +39,18 @@ public class ModbusClient extends InputOutputNode {
 
     }
 
+    public static void main(String[] args) {
+
+        try (Socket socket = new Socket("localhost", 23456)) {
+            BufferedOutputStream outputStream = new BufferedOutputStream(socket.getOutputStream());
+            BufferedInputStream inputStream = new BufferedInputStream(socket.getInputStream());
+            Message message = new Message();
+            byte[] a = { 0, 1, 0, 0, 0, 6, 1, 3, 0, 0, 0, 5 };
+            outputStream.write(a);
+            outputStream.flush();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 }

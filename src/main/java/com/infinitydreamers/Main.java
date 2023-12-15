@@ -16,6 +16,7 @@ import com.infinitydreamers.message.Message;
 import com.infinitydreamers.modbus.Injector;
 import com.infinitydreamers.modbus.ModbusClient;
 import com.infinitydreamers.modbus.ModbusRtoMMapper;
+import com.infinitydreamers.modbus.ModbusServer;
 import com.infinitydreamers.modbus.ModbusSlave;
 import com.infinitydreamers.modbus.ModbusMaster;
 import com.infinitydreamers.modbus.ModbusMtoRMapper;
@@ -88,6 +89,7 @@ public class Main {
             RuleEngine ruleEngine = new RuleEngine();
             ModbusMtoRMapper modbusMtoRMapper = new ModbusMtoRMapper();
             ModbusSlave modbusSlave = new ModbusSlave();
+            ModbusServer modbusServer = new ModbusServer();
 
             Wire wire1 = new Wire();
             Wire wire2 = new Wire();
@@ -100,6 +102,7 @@ public class Main {
             Wire modWire3 = new Wire();
             Wire modWire4 = new Wire();
             Wire modWire5 = new Wire();
+            Wire modWire6 = new Wire();
 
             client.connectOutputWire(wire1);
             in.connectInputWire(wire1);
@@ -122,6 +125,8 @@ public class Main {
             modbusMtoRMapper.connectInputWire(modWire4);
             modbusMtoRMapper.connectOutputWire(modWire5);
             modbusSlave.connectInputWire(modWire5);
+            modbusSlave.connectOutputWire(modWire6);
+            modbusServer.connectInputWire(modWire6);
 
             client.start();
             in.start();
@@ -136,6 +141,7 @@ public class Main {
             ruleEngine.start();
             modbusMtoRMapper.start();
             modbusSlave.start();
+            modbusServer.start();
 
         } catch (ParseException | IOException | org.json.simple.parser.ParseException e) {
             e.printStackTrace();

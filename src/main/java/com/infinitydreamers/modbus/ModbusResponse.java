@@ -40,7 +40,6 @@ public class ModbusResponse {
         frame[2] = b.get(3);
 
         b.clear();
-
         b.putInt(value);
         frame[3] = b.get(2);
         frame[4] = b.get(3);
