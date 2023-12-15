@@ -2,6 +2,7 @@ package com.infinitydreamers.modbus;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONObject;
@@ -26,19 +27,24 @@ public class ModbusMtoRMapper extends InputOutputNode {
                 String key = message.getJson().getString("key");
 
                 try (Jedis jedis = pool.getResource()) {
-                    System.out.println(message.getJson().toString(4));
+                    // System.out.println(message.getJson().toString(4));
                     Map<String, String> resultMap = jedis.hgetAll("place");
-                    String request = "";
+                    byte[] response = null;
                     if (resultMap.containsKey(key)) {
                         JSONObject object = new JSONObject(resultMap.get(key));
                         int address = Integer.parseInt(object.getString("address"));
                         int unitId = Integer.parseInt(object.getString("unitId"));
-                        request = Arrays
-                                .toString(ModbusRequest.getRequest(++transactionId, 3, unitId, address, 1));
+
+                        resultMap = jedis.hgetAll("value");
+                        int value = (int) (Double.parseDouble(resultMap.get(key)) * 100);
+
+                        response = ModbusResponse.addMBAP(++transactionId, unitId,
+                                ModbusResponse.make6Response(address, value));
+                        message.put("response", Arrays.toString(response));
+
+                        output(message);
                     }
-                    message.put("request", request);
                 }
-                output(message);
             }
         }
     }

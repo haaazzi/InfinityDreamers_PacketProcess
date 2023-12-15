@@ -21,7 +21,7 @@ public class Injector extends OutputNode {
                 Socket socket = serverSocket.accept()) {
             BufferedOutputStream outputStream = new BufferedOutputStream(socket.getOutputStream());
             byte[] request = ModbusResponse.addMBAP(++transactionId, 1,
-                    ModbusResponse.make6Response(201, ((int) (Math.random() * 3000) + 1000)));
+                    ModbusResponse.make6Response(200, ((int) (Math.random() * 3000) + 1000)));
 
             Thread.sleep(5000);
             outputStream.write(request);
