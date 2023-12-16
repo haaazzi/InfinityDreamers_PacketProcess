@@ -20,11 +20,12 @@ public class MqttPreprocess extends InputOutputNode {
         String objectString = "object";
         if ((getInputWire(0) != null) && getInputWire(0).hasMessage()) {
             Message message = getInputWire(0).get();
-
             if (message.isFlag()) {
                 JSONObject json = null;
                 try {
-                    json = new JSONObject(message.getJson().getString("payload"));
+                    if (message.getJson().getString("payload").startsWith("{")) {
+                        json = new JSONObject(message.getJson().getString("payload"));
+                    }
                 } catch (JSONException e) {
                     log.error(e.getMessage());
                 }
@@ -41,6 +42,7 @@ public class MqttPreprocess extends InputOutputNode {
                             Message newMessage = new Message(newJson);
                             newMessage.setFlag(true);
                             output(newMessage);
+
                         }
                     }
                 } else {
