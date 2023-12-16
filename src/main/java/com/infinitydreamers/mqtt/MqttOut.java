@@ -10,6 +10,9 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import com.infinitydreamers.message.Message;
 import com.infinitydreamers.node.InputOutputNode;
 
+/**
+ * MqttOut 클래스는 MQTT 메시지를 브로커에 전송하는 Node
+ */
 public class MqttOut extends InputOutputNode {
 
     @Override

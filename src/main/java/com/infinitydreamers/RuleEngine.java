@@ -8,11 +8,15 @@ import org.json.JSONObject;
 import com.infinitydreamers.message.Message;
 import com.infinitydreamers.node.InputOutputNode;
 
-import lombok.val;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
+/**
+ * RuleEngine 클래스는 MQTT와 Modbus에서 전달된 Message를 처리하고
+ * Redis DB에 value를 업데이트하는 Node
+ */
 public class RuleEngine extends InputOutputNode {
+
     JedisPool pool = new JedisPool("localhost", 6379);
 
     @Override

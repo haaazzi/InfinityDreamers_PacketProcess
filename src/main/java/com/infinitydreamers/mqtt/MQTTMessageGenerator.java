@@ -5,12 +5,14 @@ import org.json.JSONObject;
 import com.infinitydreamers.message.Message;
 import com.infinitydreamers.node.InputOutputNode;
 
+/**
+ * MQTTMessageGenerator 클래스는 입력 메시지를 기반으로 새로운 MQTT 메시지를 생성하는 Node
+ */
 public class MQTTMessageGenerator extends InputOutputNode {
     @Override
     public void process() {
         if ((getInputWire(0) != null) && getInputWire(0).hasMessage()) {
             Message message = getInputWire(0).get();
-            // s/nhn/b/gy/p/class_a/e/hum
             if (message.isFlag()) {
                 JSONObject object = message.getJson();
                 if (object.has("place")) {
@@ -30,6 +32,7 @@ public class MQTTMessageGenerator extends InputOutputNode {
                     newMessage.put("topic", topicBuilder.toString());
                     newMessage.put("payload", payload.toString());
                     newMessage.setFlag(true);
+
                     output(newMessage);
                 }
             }

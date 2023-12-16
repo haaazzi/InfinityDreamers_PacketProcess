@@ -8,6 +8,9 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import com.infinitydreamers.message.Message;
 import com.infinitydreamers.node.InputOutputNode;
 
+/**
+ * MQTT 통신을 담당하는 클라이언트 클래스
+ */
 public class MQTTClient extends InputOutputNode {
     Message message;
     static final String DEFAULT_TOPIC = "#";

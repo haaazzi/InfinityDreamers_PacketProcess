@@ -5,7 +5,6 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -17,13 +16,13 @@ import com.infinitydreamers.node.InputOutputNode;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Modbus 요청을 처리하고 응답을 전송하는 Modbus 서버
+ */
 @Slf4j
 public class ModbusServer extends InputOutputNode {
     static HashMap<Integer, Integer> map = new HashMap<>();
 
-    /**
-     * InnerModbusServer
-     */
     static class Handler implements Runnable {
         UUID id;
         Thread thread;
@@ -58,7 +57,7 @@ public class ModbusServer extends InputOutputNode {
             try {
                 inputStream.close();
             } catch (IOException ignore) {
-
+                log.error(ignore.getMessage());
             } finally {
                 thread.interrupt();
             }
@@ -69,50 +68,43 @@ public class ModbusServer extends InputOutputNode {
                 outputStream.write(data);
                 outputStream.flush();
             } catch (IOException ignore) {
-
+                log.error(ignore.getMessage());
             }
         }
 
         @Override
         public void run() {
-            try {
-                inputStream = new BufferedInputStream(socket.getInputStream());
-                outputStream = new BufferedOutputStream(socket.getOutputStream());
-
+            try (BufferedInputStream bufferedInputStream = new BufferedInputStream(socket.getInputStream());
+                    BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(socket.getOutputStream());) {
+                this.inputStream = bufferedInputStream;
+                this.outputStream = bufferedOutputStream;
                 while (!Thread.currentThread().isInterrupted()) {
 
                     // Request
                     int length = inputStream.read(buffer);
                     callback.accept(buffer, length);
+                    if (length > 0 && server.message != null && server.message.getJson().has("response")) {
 
-                    if (length > 0) {
+                        String response = server.message.getJson().getString("response").replace(" ", "");
+                        response = response.substring(1, response.length() - 1);
+                        String[] stringResult = response.split(",");
+                        byte[] result = new byte[stringResult.length];
 
-                        if (server.message != null && server.message.getJson().has("response")) {
-                            String response = server.message.getJson().getString("response").replace(" ", "");
-                            response = response.substring(1, response.length() - 1);
-                            // System.out.println(server.message.getJson().getString("response"));
-                            String[] stringResult = response.split(",");
-                            byte[] result = new byte[stringResult.length];
-                            for (int i = 0; i < stringResult.length; i++) {
-                                result[i] = Byte.parseByte(stringResult[i]);
-                            }
-                            // Response
-                            // byte[] result = ModbusResponse.getResponse(buffer);
-                            // byte[] result = { 0, 1, 0, 0, 0, 5, 1, 3, 2, 25, 100 };
-                            System.out.println(Arrays.toString(result));
-                            outputStream.write(result);
-                            outputStream.flush();
+                        for (int i = 0; i < stringResult.length; i++) {
+                            result[i] = Byte.parseByte(stringResult[i]);
                         }
 
+                        outputStream.write(result);
+                        outputStream.flush();
                     }
-                    // Thread.currentThread().join();
-
+                    Thread.sleep(1000);
                 }
 
                 inputStream.close();
                 outputStream.close();
+                socket.close();
 
-            } catch (IOException e) {
+            } catch (IOException | InterruptedException e) {
                 Thread.currentThread().interrupt();
             } finally {
                 inputStream = null;
@@ -122,7 +114,7 @@ public class ModbusServer extends InputOutputNode {
 
     }
 
-    int port = 2001;
+    int port = 23456;
     ServerSocket serverSocket;
     Map<UUID, Handler> handlerMap;
     Thread messageReceiver;
@@ -152,13 +144,6 @@ public class ModbusServer extends InputOutputNode {
                         for (int i = 0; i < getInputWireCount(); i++) {
                             if ((getInputWire(i) != null) && getInputWire(i).hasMessage()) {
                                 message = getInputWire(i).get();
-                                // System.out.println(message.getJson().get("response"));
-                                // if (message instanceof TcpResponseMessage) {
-                                // TcpResponseMessage response = (TcpResponseMessage) message;
-                                // Handler handler = getHandler(response.getSenderId());
-
-                                // handler.write(response.getPayload());
-                                // }
                             }
                         }
                         Thread.sleep(1);
@@ -169,8 +154,7 @@ public class ModbusServer extends InputOutputNode {
             });
             messageReceiver.start();
         } catch (IOException e) {
-            // log.error(e);
-            System.err.println(e);
+            log.error(e.getMessage());
             stop();
         }
     }
@@ -182,14 +166,6 @@ public class ModbusServer extends InputOutputNode {
             Handler handler = new Handler(socket, this);
             handler.setCallback((data, length) -> {
 
-                // Message message = new Message();
-
-                // if (length > 0) {
-                // message.setId(handler.getId());
-                // message.put("data", Arrays.toString(Arrays.copyOfRange(data, 0, length)));
-                // message.put("length", length.toString());
-                // output(message);
-                // }
             });
 
             handler.start();

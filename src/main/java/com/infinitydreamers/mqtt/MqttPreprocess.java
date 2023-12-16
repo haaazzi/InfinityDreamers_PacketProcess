@@ -6,6 +6,12 @@ import org.json.JSONObject;
 import com.infinitydreamers.message.Message;
 import com.infinitydreamers.node.InputOutputNode;
 
+import lombok.extern.slf4j.Slf4j;
+
+/**
+ * MqttPreprocess 클래스는 MQTT 메시지에 대한 전처리 작업을 수행하는 Node
+ */
+@Slf4j
 public class MqttPreprocess extends InputOutputNode {
 
     @Override
@@ -20,6 +26,7 @@ public class MqttPreprocess extends InputOutputNode {
                 try {
                     json = new JSONObject(message.getJson().getString("payload"));
                 } catch (JSONException e) {
+                    log.error(e.getMessage());
                 }
                 if (json != null && json.has(deviceInfoString) && json.has(objectString)) {
                     JSONObject newJson = new JSONObject();

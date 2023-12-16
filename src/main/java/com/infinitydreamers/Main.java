@@ -8,7 +8,6 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -25,7 +24,6 @@ import com.infinitydreamers.mqtt.MQTTMessageGenerator;
 import com.infinitydreamers.mqtt.MqttIn;
 import com.infinitydreamers.mqtt.MqttOut;
 import com.infinitydreamers.mqtt.MqttPreprocess;
-import com.infinitydreamers.node.DebugNode;
 import com.infinitydreamers.wire.Wire;
 
 public class Main {
