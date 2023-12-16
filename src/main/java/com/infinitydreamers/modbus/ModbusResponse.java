@@ -5,13 +5,23 @@ import java.nio.ByteOrder;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Modbus Response 생성하는 클래스
+ */
 @Slf4j
 public class ModbusResponse {
 
-    ModbusResponse() {
+    private ModbusResponse() {
 
     }
 
+    /**
+     * 
+     * @param functionCode
+     * @param quantity
+     * @param value
+     * @return
+     */
     public static byte[] make346Response(int functionCode, int quantity, int value) {
         byte[] frame = new byte[2 + quantity * 2];
 
@@ -28,6 +38,12 @@ public class ModbusResponse {
         return frame;
     }
 
+    /**
+     * 
+     * @param address
+     * @param value
+     * @return
+     */
     public static byte[] make6Response(int address, int value) {
         byte[] frame = new byte[5];
 
@@ -47,6 +63,12 @@ public class ModbusResponse {
         return frame;
     }
 
+    /**
+     * 
+     * @param registers
+     * @param address
+     * @return
+     */
     public static byte[] make16Response(int[] registers, int address) {
         int quantity = registers.length;
         byte[] frame = new byte[5];
@@ -56,19 +78,20 @@ public class ModbusResponse {
 
         frame[0] = 0x10;
 
-        // Address
         frame[1] = b.get(2);
         frame[2] = b.get(3);
 
-        // Quantity of Registers
         frame[3] = 0;
         frame[4] = (byte) quantity;
 
         return frame;
     }
 
-    // Response - Read
-
+    /**
+     * 
+     * @param buffer
+     * @return
+     */
     public static byte[] getResponse(byte[] buffer) {
 
         int transactionId = ((buffer[0] << 8) | Byte.toUnsignedInt(buffer[1]));
@@ -86,11 +109,6 @@ public class ModbusResponse {
                 result = make346Response(functionCode, quantity, value);
                 break;
 
-            // case 16:
-            // result = make16Response(
-            // Arrays.copyOfRange(holdingRegisters, address, address + quantity), address);
-            // break;
-
             default:
                 log.error("Function code is not 3, 4, 6 or 16!");
                 break;
@@ -99,13 +117,18 @@ public class ModbusResponse {
         return addMBAP(transactionId, unitId, result);
     }
 
-    // Header Wrapper - Read + Write
+    /**
+     * 
+     * @param transactionId
+     * @param unitId
+     * @param pdu
+     * @return
+     */
     public static byte[] addMBAP(int transactionId, int unitId, byte[] pdu) {
         byte[] adu = new byte[7 + pdu.length];
         ByteBuffer b = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN);
 
         b.putInt(transactionId);
-        // b.get(3));
 
         adu[0] = b.get(2);
         adu[1] = b.get(3);

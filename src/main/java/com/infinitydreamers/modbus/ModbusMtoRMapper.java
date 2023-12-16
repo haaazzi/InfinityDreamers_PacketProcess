@@ -1,19 +1,19 @@
 package com.infinitydreamers.modbus;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.json.JSONObject;
 
-import com.google.gson.Gson;
 import com.infinitydreamers.message.Message;
 import com.infinitydreamers.node.InputOutputNode;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
+/**
+ * Modbus 메시지를 Redis로 매핑하고 Message에 Response 담는 Node
+ */
 public class ModbusMtoRMapper extends InputOutputNode {
     JedisPool pool = new JedisPool("localhost", 6379);
     int transactionId = 0;
@@ -27,12 +27,10 @@ public class ModbusMtoRMapper extends InputOutputNode {
                 String key = message.getJson().getString("key");
 
                 try (Jedis jedis = pool.getResource()) {
-                    // System.out.println(message.getJson().toString(4));
                     Map<String, String> resultMap = jedis.hgetAll("place");
                     byte[] response = null;
                     if (resultMap.containsKey(key)) {
                         JSONObject object = new JSONObject(resultMap.get(key));
-                        int address = Integer.parseInt(object.getString("address"));
                         int unitId = Integer.parseInt(object.getString("unitId"));
 
                         resultMap = jedis.hgetAll("value");

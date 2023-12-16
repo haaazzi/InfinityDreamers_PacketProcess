@@ -1,17 +1,18 @@
 package com.infinitydreamers.modbus;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.json.JSONObject;
 
-import com.google.gson.Gson;
 import com.infinitydreamers.message.Message;
 import com.infinitydreamers.node.InputOutputNode;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
+/**
+ * Message에 저장된 payload를 Modbus Response로 매핑해 key, value를 생성하는 Node
+ */
 public class ModbusRtoMMapper extends InputOutputNode {
     JedisPool pool = new JedisPool("localhost", 6379);
 

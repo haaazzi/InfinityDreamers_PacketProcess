@@ -4,6 +4,10 @@ import java.util.UUID;
 
 import org.json.JSONObject;
 
+/**
+ * JSON 페이로드를 갖는 Message
+ * JSON 객체에서 데이터를 저장하고 반환
+ */
 public class Message {
     JSONObject json;
 
