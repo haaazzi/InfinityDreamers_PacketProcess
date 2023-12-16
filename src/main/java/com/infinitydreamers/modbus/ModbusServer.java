@@ -90,25 +90,29 @@ public class ModbusServer extends InputOutputNode {
                         if (server.message != null && server.message.getJson().has("response")) {
                             String response = server.message.getJson().getString("response").replace(" ", "");
                             response = response.substring(1, response.length() - 1);
+                            // System.out.println(server.message.getJson().getString("response"));
                             String[] stringResult = response.split(",");
-                            // byte[] result = new byte[stringResult.length];
-                            // for (int i = 0; i < stringResult.length; i++) {
-                            // result[i] = Byte.parseByte(stringResult[i]);
-                            // }
+                            byte[] result = new byte[stringResult.length];
+                            for (int i = 0; i < stringResult.length; i++) {
+                                result[i] = Byte.parseByte(stringResult[i]);
+                            }
                             // Response
                             // byte[] result = ModbusResponse.getResponse(buffer);
-                            byte[] result = { 0, 1, 0, 0, 0, 6, 1, 3, 0, -56, 25, 100 };
-                            // System.out.println(Arrays.toString(result));
+                            // byte[] result = { 0, 1, 0, 0, 0, 5, 1, 3, 2, 25, 100 };
+                            System.out.println(Arrays.toString(result));
                             outputStream.write(result);
                             outputStream.flush();
                         }
+
                     }
-                    Thread.currentThread().join();
+                    // Thread.currentThread().join();
+
                 }
 
                 inputStream.close();
                 outputStream.close();
-            } catch (IOException | InterruptedException e) {
+
+            } catch (IOException e) {
                 Thread.currentThread().interrupt();
             } finally {
                 inputStream = null;
@@ -118,7 +122,7 @@ public class ModbusServer extends InputOutputNode {
 
     }
 
-    int port = 23456;
+    int port = 2001;
     ServerSocket serverSocket;
     Map<UUID, Handler> handlerMap;
     Thread messageReceiver;
@@ -148,6 +152,7 @@ public class ModbusServer extends InputOutputNode {
                         for (int i = 0; i < getInputWireCount(); i++) {
                             if ((getInputWire(i) != null) && getInputWire(i).hasMessage()) {
                                 message = getInputWire(i).get();
+                                // System.out.println(message.getJson().get("response"));
                                 // if (message instanceof TcpResponseMessage) {
                                 // TcpResponseMessage response = (TcpResponseMessage) message;
                                 // Handler handler = getHandler(response.getSenderId());
@@ -164,7 +169,8 @@ public class ModbusServer extends InputOutputNode {
             });
             messageReceiver.start();
         } catch (IOException e) {
-            log.error(e.getMessage());
+            // log.error(e);
+            System.err.println(e);
             stop();
         }
     }

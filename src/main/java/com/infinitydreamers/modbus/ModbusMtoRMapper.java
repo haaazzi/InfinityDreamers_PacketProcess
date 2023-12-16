@@ -39,9 +39,8 @@ public class ModbusMtoRMapper extends InputOutputNode {
                         int value = (int) (Double.parseDouble(resultMap.get(key)) * 100);
 
                         response = ModbusResponse.addMBAP(++transactionId, unitId,
-                                ModbusResponse.make6Response(address, value));
+                                ModbusResponse.make346Response(3, 1, value));
                         message.put("response", Arrays.toString(response));
-
                         output(message);
                     }
                 }
